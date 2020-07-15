@@ -74,9 +74,7 @@ router.post('/', (req,res) => {
                         console.log(result);
                         res.status(200).send(result);                        
                     }
-
             });
-
         }else{
             res.status(200).send({message: "Artist Name too small"});
         }
@@ -89,7 +87,6 @@ router.post('/', (req,res) => {
 // Update Artist By Artist
 router.put('/:id', (req,res) => {
     let artist_id = req.params.id;
-    console.log(isNaN(artist_id), artist_id);
     if(isNaN(artist_id)){
     // Send a 404 status and message, WHEN ID is non numeric
     res.status(404).send({message: "Invalid Artist ID"});     
@@ -131,7 +128,7 @@ router.put('/:id', (req,res) => {
                     }
                 }
                 // If All good, send result
-                res.status(200).send(result);
+                // res.status(200).send(result);
             }
          }
         }); 
@@ -139,5 +136,40 @@ router.put('/:id', (req,res) => {
 });
 
 // Delete Artist By ID
+router.delete('/:id', (req,res) => {
+    let artist_id = req.params.id;
+    if(isNaN(artist_id)){
+    // Send a 404 status and message, WHEN ID is non numeric
+    res.status(404).send({message: "Invalid Artist ID"});     
+    }else{
+        var getQuery = `SELECT * FROM artist WHERE artist_id = '${artist_id}'`;
+        conn.query(getQuery, (err,result) => {
+            // Check if Error
+            if(err){
+                // Send a 404 status and message
+                res.status(404).send({message: "Some Error", error:err});
+            }else{
+            // Check result length        
+            if(result.length == 0){
+                // If no entry in database send 200rs status
+                res.status(404).send({message: "Artist ID not Found"});
+            }else{
+                        var sqlUpdate = `DELETE FROM artist WHERE artist_id = '${artist_id}'`; 
+                        conn.query(sqlUpdate, (err1, result1) => {
+                            console.log(result1);
+                            if(err1){
+                            // Send a 404 status and message
+                            res.status(404).send({message: "Some Error", error:err1});
+                            }else{
+                                // If no entry in database send 200 status
+                                res.status(200).send({message: "Artist Deleted", result1});
+                          }
+                        });
+            }
+         }
+        }); 
+    }    
+});
+
 
 module.exports = router;
